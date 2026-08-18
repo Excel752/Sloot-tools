@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>稼働ダッシュボード</title>
+<style>
+:root{--bg:#0d0d10;--card:#17171b;--line:#2e2e35;--text:#f0f0f2;--muted:#8f8f99;--gold:#d6bb79;--plus:#7ed6a0;--minus:#f08d91}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:18px 14px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:20px;margin:0}.back{font-size:12px;color:var(--muted);text-decoration:none}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tab{flex:1;border:1px solid var(--line);background:#151519;color:var(--muted);padding:9px;border-radius:9px;font-weight:800}.tab.on{background:#ece8df;color:#111}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}.lab{font-size:10px;color:var(--muted)}.val{font-size:20px;font-weight:900;margin-top:4px}.plus{color:var(--plus)}.minus{color:var(--minus)}
+.panel{margin-top:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px}
+.monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.monthbar button{border:1px solid var(--line);background:#202025;color:white;border-radius:8px;padding:7px 14px}.monthtitle{font-weight:900}.excelstat{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#111115;border:1px solid #28282e;border-radius:10px;padding:10px 12px;margin:2px 0 8px}.excelstat .lab{font-size:11px}.excelstat .val{font-size:18px;margin-top:0;text-align:right}.excelhint{font-size:8px;color:var(--muted);margin-top:2px}.salarysum{font-size:8px;color:var(--muted);text-align:right;margin-top:3px}.salarybox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 1px;border-top:1px solid #29292f}.salarylabel{font-size:11px;font-weight:800}.salarydate{display:block;color:var(--muted);font-size:9px;font-weight:400;margin-top:2px}.salaryinputwrap{display:flex;align-items:center;gap:4px}.salaryinput{width:112px;background:#111115;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 9px;text-align:right;font-size:14px;font-weight:800;outline:none}.salaryinput:focus{border-color:var(--gold)}.salaryunit{font-size:11px;color:var(--muted)}
+.week,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.week div{text-align:center;color:var(--muted);font-size:9px;padding:3px}
+.day{min-height:76px;background:#111115;border:1px solid #28282e;border-radius:8px;padding:5px;overflow:hidden}.day.empty{opacity:.15}.day.has{cursor:pointer}.day.sel{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.date{font-size:10px;font-weight:900}.mini{font-size:8px;line-height:1.45;white-space:nowrap;margin-top:2px}.today .date{color:var(--gold)}
+.detailhead{font-size:13px;font-weight:900;margin-bottom:5px}.row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #29292f;padding:9px 1px;font-size:11px}.row:first-child{border-top:0}.machine{font-weight:900}.sub{color:var(--muted);font-size:9px}.right{text-align:right}
+.emptymsg{text-align:center;color:var(--muted);font-size:11px;padding:17px 0}.actions{display:flex;gap:7px;margin-top:10px}.smallbtn{flex:1;border:1px solid var(--line);background:#202025;color:#bbb;padding:9px;border-radius:8px;font-size:10px}
+.note{text-align:center;color:#666670;font-size:9px;margin-top:13px}
+@media(max-width:380px){.day{min-height:70px;padding:4px}.mini{font-size:7px}.val{font-size:18px}}
+</style></head><body><div class="wrap">
+<div class="top"><h1>📊 稼働ダッシュボード</h1><a class="back" href="./index.html">← ツール選択へ</a></div>
+<div class="tabs"><button class="tab on" data-mode="month">今月</button><button class="tab" data-mode="today">今日</button><button class="tab" data-mode="all">累計</button></div>
+<div class="summary">
+<div class="stat"><div class="lab">実収支</div><div id="profit" class="val">0円</div></div>
+<div class="stat"><div class="lab">期待値</div><div id="ev" class="val">0円</div></div>
+<div class="stat"><div class="lab">総回転数</div><div id="games" class="val">0G</div></div>
+<div class="stat"><div class="lab">稼働台数</div><div id="count" class="val">0台</div></div>
+</div>
+<div class="panel">
+<div class="monthbar"><button id="prev">‹</button><div id="monthTitle" class="monthtitle"></div><button id="next">›</button></div>
+<div class="excelstat"><div><div class="lab">エクセル収支</div><div class="excelhint">実収支 − 期待値 − 給料</div></div><div><div id="excelProfit" class="val">0円</div><div id="salarySum" class="salarysum">給料 0円</div></div></div>
+<div class="week"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div>
+<div id="calendar" class="cal"></div>
+</div>
+<div class="panel"><div id="detailHead" class="detailhead">稼働日を選択</div><div id="details"><div class="emptymsg">カレンダーの日付をタップすると詳細を表示します</div></div></div>
+<div class="actions"><button id="exportBtn" class="smallbtn">📋 データをコピー</button><button id="clearBtn" class="smallbtn">🗑 全履歴を削除</button></div>
+<div class="note">「完成メールを作成」を押した日時で自動記録。日が変わると今日の集計は0から、履歴は残ります。</div>
+</div>
+<script>
+const KEY="slot_dashboard_records_v1";
+const SALARY_KEY="slot_dashboard_salary_v1";
+let d=new Date(), y=d.getFullYear(), m=d.getMonth(), mode="month", selected="";
+const $=id=>document.getElementById(id), money=n=>(n>0?"+":"")+Number(n||0).toLocaleString()+"円", sign=n=>n>0?"plus":n<0?"minus":"";
+function rows(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+function salaryMap(){try{return JSON.parse(localStorage.getItem(SALARY_KEY)||"{}")}catch(e){return{}}}
+function salaryFor(day){return Number(salaryMap()[day])||0}
+function saveSalary(day,value){const map=salaryMap(),n=Math.max(0,Math.round(Number(value)||0));if(n>0)map[day]=n;else delete map[day];localStorage.setItem(SALARY_KEY,JSON.stringify(map))}
+function salaryTotalFor(rs){const days=[...new Set(rs.map(localDay))];return days.reduce((a,day)=>a+salaryFor(day),0)}
+function localDay(x){return String(x.date||new Date(x.timestamp).toLocaleDateString("sv-SE")).slice(0,10)}
+function monthRows(){return rows().filter(r=>{const s=localDay(r);return +s.slice(0,4)===y && +s.slice(5,7)===m+1})}
+function filtered(){const all=rows(), today=new Date().toLocaleDateString("sv-SE");if(mode==="today")return all.filter(r=>localDay(r)===today);if(mode==="all")return all;return monthRows()}
+function sum(rs,k){return rs.reduce((a,r)=>a+(Number(r[k])||0),0)}
+function summary(){const rs=filtered(),p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryTotalFor(rs),x=p-e-s,g=sum(rs,"games");$("profit").textContent=money(p);$("profit").className="val "+sign(p);$("ev").textContent=money(e);$("ev").className="val "+sign(e);$("excelProfit").textContent=money(x);$("excelProfit").className="val "+sign(x);$("salarySum").textContent="給料 "+Number(s).toLocaleString()+"円";$("games").textContent=g.toLocaleString()+"G";$("count").textContent=rs.length+"台"}
+function render(){
+ summary(); $("monthTitle").textContent=`${y}年${m+1}月`; const rs=monthRows(), first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), today=new Date().toLocaleDateString("sv-SE"); $("calendar").innerHTML="";
+ for(let i=0;i<first;i++){const x=document.createElement("div");x.className="day empty";$("calendar").appendChild(x)}
+ for(let n=1;n<=days;n++){const key=`${y}-${String(m+1).padStart(2,"0")}-${String(n).padStart(2,"0")}`, dr=rs.filter(r=>localDay(r)===key),p=sum(dr,"profit"),e=sum(dr,"ev"),g=sum(dr,"games");const x=document.createElement("div");x.className="day"+(dr.length?" has":"")+(key===today?" today":"")+(key===selected?" sel":"");x.innerHTML=`<div class="date">${n}</div>`+(dr.length?`<div class="mini ${sign(p)}">収 ${money(p)}</div><div class="mini ${sign(e)}">期 ${money(e)}</div><div class="mini">${g.toLocaleString()}G / ${dr.length}台</div>`:"");if(dr.length)x.onclick=()=>{selected=key;showDay(key,dr);render()};$("calendar").appendChild(x)}
+}
+function showDay(key,rs){const p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryFor(key),x=p-e-s,g=sum(rs,"games");$("detailHead").textContent=`${+key.slice(5,7)}月${+key.slice(8)}日　${rs.length}台 / ${g.toLocaleString()}G`;$("details").innerHTML=`<div class="row"><span>日計 実収支</span><b class="${sign(p)}">${money(p)}</b></div><div class="row"><span>日計 期待値</span><b class="${sign(e)}">${money(e)}</b></div><div class="salarybox"><div><span class="salarylabel">給料</span><span class="salarydate">${+key.slice(5,7)}月${+key.slice(8)}日分</span></div><div class="salaryinputwrap"><input id="salaryInput" class="salaryinput" type="number" inputmode="numeric" min="0" step="100" placeholder="11300〜13900" value="${s||""}"><span class="salaryunit">円</span></div></div><div class="row"><span>日計 エクセル収支</span><b id="dayExcelProfit" class="${sign(x)}">${money(x)}</b></div>`+rs.sort((a,b)=>String(a.timestamp).localeCompare(String(b.timestamp))).map(r=>`<div class="row"><span><span class="machine">${r.machine||"機種不明"}</span><br><span class="sub">${r.store||""}${r.number?" #"+r.number:""}${r.name?" / "+r.name:""}</span></span><span class="right"><b class="${sign(r.profit)}">${money(r.profit)}</b><br><span class="sub">期待 ${money(r.ev)} / ${(Number(r.games)||0).toLocaleString()}G</span></span></div>`).join("");const input=$("salaryInput");if(input)input.oninput=()=>{saveSalary(key,input.value);const nx=p-e-salaryFor(key),el=$("dayExcelProfit");el.textContent=money(nx);el.className=sign(nx);summary()}}
+$("prev").onclick=()=>{m--;if(m<0){m=11;y--}selected="";render()};$("next").onclick=()=>{m++;if(m>11){m=0;y++}selected="";render()};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");mode=b.dataset.mode;summary()});
+$("exportBtn").onclick=async()=>{const s=JSON.stringify({records:rows(),salary:salaryMap()},null,2);try{await navigator.clipboard.writeText(s);alert("稼働データと給料データをコピーしました")}catch(e){prompt("コピーしてください",s)}};
+$("clearBtn").onclick=()=>{if(confirm("保存されている稼働履歴をすべて削除しますか？")){localStorage.removeItem(KEY);localStorage.removeItem(SALARY_KEY);selected="";$("details").innerHTML='<div class="emptymsg">履歴はありません</div>';render()}};
+render();
+</script></body></html>
