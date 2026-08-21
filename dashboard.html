@@ -10,7 +10,7 @@ h1{font-size:20px;margin:0}.back{font-size:12px;color:var(--muted);text-decorati
 .tabs{display:flex;gap:6px;margin-bottom:10px}.tab{flex:1;border:1px solid var(--line);background:#151519;color:var(--muted);padding:9px;border-radius:9px;font-weight:800}.tab.on{background:#ece8df;color:#111}
 .summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}.lab{font-size:10px;color:var(--muted)}.val{font-size:20px;font-weight:900;margin-top:4px}.plus{color:var(--plus)}.minus{color:var(--minus)}
 .panel{margin-top:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px}
-.monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.monthbar button{border:1px solid var(--line);background:#202025;color:white;border-radius:8px;padding:7px 14px}.monthtitle{font-weight:900}.excelstat{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#111115;border:1px solid #28282e;border-radius:10px;padding:10px 12px;margin:2px 0 8px}.excelstat .lab{font-size:11px}.excelstat .val{font-size:18px;margin-top:0;text-align:right}.excelhint{font-size:8px;color:var(--muted);margin-top:2px}.salarysum{font-size:8px;color:var(--muted);text-align:right;margin-top:3px}.salarybox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 1px;border-top:1px solid #29292f}.salarylabel{font-size:11px;font-weight:800}.salarydate{display:block;color:var(--muted);font-size:9px;font-weight:400;margin-top:2px}.salaryinputwrap{display:flex;align-items:center;gap:4px}.salaryinput{width:112px;background:#111115;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 9px;text-align:right;font-size:14px;font-weight:800;outline:none}.salaryinput:focus{border-color:var(--gold)}.salaryunit{font-size:11px;color:var(--muted)}.recordrow{align-items:center}.deletebtn{flex:none;border:1px solid #563238;background:#24171a;color:#f08d91;border-radius:7px;padding:7px 8px;font-size:9px;font-weight:800;cursor:pointer}.selectednote{font-size:9px;color:var(--muted);margin:0 0 7px}.selectednote b{color:var(--gold)}
+.monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.monthbar button{border:1px solid var(--line);background:#202025;color:white;border-radius:8px;padding:7px 14px}.monthtitle{font-weight:900}.excelstat{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#111115;border:1px solid #28282e;border-radius:10px;padding:10px 12px;margin:2px 0 8px}.excelstat .lab{font-size:11px}.excelstat .val{font-size:18px;margin-top:0;text-align:right}.excelhint{font-size:8px;color:var(--muted);margin-top:2px}.salarysum{font-size:8px;color:var(--muted);text-align:right;margin-top:3px}.salarybox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 1px;border-top:1px solid #29292f}.salarylabel{font-size:11px;font-weight:800}.salarydate{display:block;color:var(--muted);font-size:9px;font-weight:400;margin-top:2px}.salaryinputwrap{display:flex;align-items:center;gap:4px}.salaryinput{width:112px;background:#111115;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 9px;text-align:right;font-size:14px;font-weight:800;outline:none}.salaryinput:focus{border-color:var(--gold)}.salaryunit{font-size:11px;color:var(--muted)}.recordrow{align-items:center}.deletebtn{flex:none;border:1px solid #563238;background:#24171a;color:#f08d91;border-radius:7px;padding:7px 8px;font-size:9px;font-weight:800;cursor:pointer}.selectednote{font-size:9px;color:var(--muted);margin:0 0 7px}.selectednote b{color:var(--gold)}.periodnote{text-align:center;font-size:9px;color:var(--muted);margin:8px 0 0}.periodnote b{color:var(--gold)}
 .week,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.week div{text-align:center;color:var(--muted);font-size:9px;padding:3px}
 .day{min-height:76px;background:#111115;border:1px solid #28282e;border-radius:8px;padding:5px;overflow:hidden}.day.empty{opacity:.15}.day.has{cursor:pointer}.day.sel{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
 .date{font-size:10px;font-weight:900}.mini{font-size:8px;line-height:1.45;white-space:nowrap;margin-top:2px}.today .date{color:var(--gold)}
@@ -20,28 +20,29 @@ h1{font-size:20px;margin:0}.back{font-size:12px;color:var(--muted);text-decorati
 @media(max-width:380px){.day{min-height:70px;padding:4px}.mini{font-size:7px}.val{font-size:18px}}
 </style></head><body><div class="wrap">
 <div class="top"><h1>📊 稼働ダッシュボード</h1><a class="back" href="./index.html">← ツール選択へ</a></div>
-<div class="tabs"><button class="tab on" data-mode="today">今日</button><button class="tab" data-mode="month">今月</button><button class="tab" data-mode="all">累計</button></div>
+<div class="tabs"><button id="dayTab" class="tab on" data-mode="day">今日</button><button class="tab" data-mode="week">週</button><button class="tab" data-mode="month">月</button><button class="tab" data-mode="all">累計</button></div>
 <div class="summary">
 <div class="stat"><div class="lab">実収支</div><div id="profit" class="val">0円</div></div>
 <div class="stat"><div class="lab">期待値</div><div id="ev" class="val">0円</div></div>
 <div class="stat"><div class="lab">総回転数</div><div id="games" class="val">0G</div></div>
 <div class="stat"><div class="lab">稼働台数</div><div id="count" class="val">0台</div></div>
 </div>
+<div id="periodNote" class="periodnote"></div>
 <div class="panel">
 <div class="monthbar"><button id="prev">‹</button><div id="monthTitle" class="monthtitle"></div><button id="next">›</button></div><div id="selectedDateBadge" style="font-size:9px;color:var(--muted);margin:-2px 0 7px;text-align:center"></div>
 <div class="excelstat"><div><div class="lab">エクセル収支</div><div class="excelhint">実収支 − 期待値 − 給料</div></div><div><div id="excelProfit" class="val">0円</div><div id="salarySum" class="salarysum">給料 0円</div></div></div>
 <div class="week"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div>
 <div id="calendar" class="cal"></div>
 </div>
-<div class="panel"><div id="detailHead" class="detailhead">稼働日を選択</div><div id="details"><div class="emptymsg">カレンダーの日付をタップすると詳細を表示します</div></div></div>
+<div class="panel"><div id="detailHead" class="detailhead">今日の稼働内訳</div><div id="details"><div class="emptymsg">この日の稼働記録はまだありません</div></div></div>
 <div class="actions"><button id="exportBtn" class="smallbtn">📋 データをコピー</button><button id="clearBtn" class="smallbtn">🗑 全履歴を削除</button></div>
-<div class="note">通常のシート作成→確認メール→完成メールは当日に記録。完成メールだけ送る場合は、カレンダーで選択した日付に記録します。</div>
+<div class="note">起動時は当日表示。カレンダーの日付をタップすると上の集計がその日に切り替わります。「週」は選択日を含む週の集計で、回転数だけ1日平均を表示します。</div>
 </div>
 <script>
 const KEY="slot_dashboard_records_v1";
 const SALARY_KEY="slot_dashboard_salary_v1";
 const SELECTED_DATE_KEY="slot_dashboard_selected_date_v1";
-let d=new Date(), y=d.getFullYear(), m=d.getMonth(), mode="today", selected=new Date().toLocaleDateString("sv-SE");
+let d=new Date(), y=d.getFullYear(), m=d.getMonth(), mode="day", selected=new Date().toLocaleDateString("sv-SE");
 const $=id=>document.getElementById(id), money=n=>(n>0?"+":"")+Number(n||0).toLocaleString()+"円", sign=n=>n>0?"plus":n<0?"minus":"";
 function rows(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function salaryMap(){try{return JSON.parse(localStorage.getItem(SALARY_KEY)||"{}")}catch(e){return{}}}
@@ -62,13 +63,70 @@ function refreshSelectedDetail(){
 }
 function localDay(x){return String(x.date||new Date(x.timestamp).toLocaleDateString("sv-SE")).slice(0,10)}
 function monthRows(){return rows().filter(r=>{const s=localDay(r);return +s.slice(0,4)===y && +s.slice(5,7)===m+1})}
-function filtered(){const all=rows(), today=new Date().toLocaleDateString("sv-SE");if(mode==="today")return all.filter(r=>localDay(r)===today);if(mode==="all")return all;return monthRows()}
+function dayRows(day=selected){return rows().filter(r=>localDay(r)===day)}
+function weekKey(day){
+  const [yy,mm,dd]=day.split("-").map(Number), dt=new Date(yy,mm-1,dd), dow=dt.getDay();
+  dt.setDate(dt.getDate()-dow);
+  return dt.toLocaleDateString("sv-SE");
+}
+function weekRows(day=selected){
+  const start=weekKey(day);
+  const [yy,mm,dd]=start.split("-").map(Number), s=new Date(yy,mm-1,dd), e=new Date(yy,mm-1,dd);
+  e.setDate(e.getDate()+6);
+  return rows().filter(r=>{
+    const d=localDay(r), t=new Date(d+"T00:00:00");
+    return t>=s && t<=e;
+  });
+}
+function updateDayTab(){
+  const today=new Date().toLocaleDateString("sv-SE"), b=$("dayTab");
+  if(!b)return;
+  b.textContent=selected===today?"今日":`${+selected.slice(5,7)}/${+selected.slice(8)}`;
+}
+function filtered(){
+  const all=rows();
+  if(mode==="day")return dayRows(selected);
+  if(mode==="week")return weekRows(selected);
+  if(mode==="all")return all;
+  if(mode==="month")return monthRows();
+  return dayRows(selected);
+}
 function sum(rs,k){return rs.reduce((a,r)=>a+(Number(r[k])||0),0)}
-function summary(){const rs=filtered(),p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryTotalFor(rs),x=p-e-s,g=sum(rs,"games");$("profit").textContent=money(p);$("profit").className="val "+sign(p);$("ev").textContent=money(e);$("ev").className="val "+sign(e);$("excelProfit").textContent=money(x);$("excelProfit").className="val "+sign(x);$("salarySum").textContent="給料 "+Number(s).toLocaleString()+"円";$("games").textContent=g.toLocaleString()+"G";$("count").textContent=rs.length+"台"}
+function summary(){
+  let rs=filtered(), p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryTotalFor(rs),x=p-e-s,g=sum(rs,"games"),c=rs.length,note="";
+  if(mode==="week"){
+    const activeDays=[...new Set(rs.map(localDay))].length;
+    g=activeDays?g/activeDays:0;
+    const start=weekKey(selected), [yy,mm,dd]=start.split("-").map(Number), end=new Date(yy,mm-1,dd);
+    end.setDate(end.getDate()+6);
+    const endKey=end.toLocaleDateString("sv-SE");
+    note=`<b>${+start.slice(5,7)}/${+start.slice(8)}〜${+endKey.slice(5,7)}/${+endKey.slice(8)}</b> の週集計（回転数のみ1日平均）`;
+  }else if(mode==="day"){
+    note=`<b>${+selected.slice(5,7)}月${+selected.slice(8)}日</b> の集計`;
+  }else if(mode==="month"){
+    note=`<b>${y}年${m+1}月</b> の集計`;
+  }else{
+    note="保存されている全期間の集計";
+  }
+  $("profit").textContent=money(Math.round(p));$("profit").className="val "+sign(p);
+  $("ev").textContent=money(Math.round(e));$("ev").className="val "+sign(e);
+  $("excelProfit").textContent=money(Math.round(x));$("excelProfit").className="val "+sign(x);
+  $("salarySum").textContent="給料 "+Math.round(s).toLocaleString()+"円";
+  $("games").textContent=Math.round(g).toLocaleString()+"G";
+  $("count").textContent=c+"台";
+  $("periodNote").innerHTML=note;
+  updateDayTab();
+}
 function render(){
  summary(); $("monthTitle").textContent=`${y}年${m+1}月`; $("selectedDateBadge").textContent=selected?`選択中：${+selected.slice(5,7)}月${+selected.slice(8)}日`:""; const rs=monthRows(), first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), today=new Date().toLocaleDateString("sv-SE"); $("calendar").innerHTML="";
  for(let i=0;i<first;i++){const x=document.createElement("div");x.className="day empty";$("calendar").appendChild(x)}
- for(let n=1;n<=days;n++){const key=`${y}-${String(m+1).padStart(2,"0")}-${String(n).padStart(2,"0")}`, dr=rs.filter(r=>localDay(r)===key),p=sum(dr,"profit"),e=sum(dr,"ev"),g=sum(dr,"games");const x=document.createElement("div");x.className="day has"+(key===today?" today":"")+(key===selected?" sel":"");x.innerHTML=`<div class="date">${n}</div>`+(dr.length?`<div class="mini ${sign(p)}">収 ${money(p)}</div><div class="mini ${sign(e)}">期 ${money(e)}</div><div class="mini">${g.toLocaleString()}G / ${dr.length}台</div>`:"");x.onclick=()=>{setSelectedDate(key);render();showDay(key,rows().filter(r=>localDay(r)===key))};$("calendar").appendChild(x)}
+ for(let n=1;n<=days;n++){const key=`${y}-${String(m+1).padStart(2,"0")}-${String(n).padStart(2,"0")}`, dr=rs.filter(r=>localDay(r)===key),p=sum(dr,"profit"),e=sum(dr,"ev"),g=sum(dr,"games");const x=document.createElement("div");x.className="day has"+(key===today?" today":"")+(key===selected?" sel":"");x.innerHTML=`<div class="date">${n}</div>`+(dr.length?`<div class="mini ${sign(p)}">収 ${money(p)}</div><div class="mini ${sign(e)}">期 ${money(e)}</div><div class="mini">${g.toLocaleString()}G / ${dr.length}台</div>`:"");x.onclick=()=>{
+  setSelectedDate(key);
+  mode="day";
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.mode==="day"));
+  render();
+  showDay(key,rows().filter(r=>localDay(r)===key));
+};$("calendar").appendChild(x)}
 }
 function showDay(key,rs){
   rs=Array.isArray(rs)?rs:[];
@@ -88,12 +146,27 @@ function showDay(key,rs){
   if(input) input.oninput=()=>{saveSalary(key,input.value);const nx=p-e-salaryFor(key),el=$("dayExcelProfit");el.textContent=money(nx);el.className=sign(nx);summary()};
   document.querySelectorAll("[data-delete-id]").forEach(btn=>btn.onclick=()=>{const id=btn.dataset.deleteId;if(confirm("この稼働記録を削除しますか？"))deleteRecord(id)});
 }
-$("prev").onclick=()=>{m--;if(m<0){m=11;y--}render();const ym=`${y}-${String(m+1).padStart(2,"0")}`;if(selected&&selected.startsWith(ym))refreshSelectedDetail();else{$("detailHead").textContent="稼働日を選択";$("details").innerHTML='<div class="emptymsg">カレンダーの日付をタップすると詳細を表示します</div>'}};
-$("next").onclick=()=>{m++;if(m>11){m=0;y++}render();const ym=`${y}-${String(m+1).padStart(2,"0")}`;if(selected&&selected.startsWith(ym))refreshSelectedDetail();else{$("detailHead").textContent="稼働日を選択";$("details").innerHTML='<div class="emptymsg">カレンダーの日付をタップすると詳細を表示します</div>'}};
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");mode=b.dataset.mode;summary()});
+$("prev").onclick=()=>{
+  m--;if(m<0){m=11;y--}
+  const ym=`${y}-${String(m+1).padStart(2,"0")}`;
+  if(mode==="day"&&!selected.startsWith(ym))setSelectedDate(`${ym}-01`);
+  render();refreshSelectedDetail();
+};
+$("next").onclick=()=>{
+  m++;if(m>11){m=0;y++}
+  const ym=`${y}-${String(m+1).padStart(2,"0")}`;
+  if(mode==="day"&&!selected.startsWith(ym))setSelectedDate(`${ym}-01`);
+  render();refreshSelectedDetail();
+};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  mode=b.dataset.mode;
+  summary();
+});
 $("exportBtn").onclick=async()=>{const s=JSON.stringify({records:rows(),salary:salaryMap()},null,2);try{await navigator.clipboard.writeText(s);alert("稼働データと給料データをコピーしました")}catch(e){prompt("コピーしてください",s)}};
 $("clearBtn").onclick=()=>{if(confirm("保存されている稼働履歴をすべて削除しますか？")){localStorage.removeItem(KEY);localStorage.removeItem(SALARY_KEY);selected="";$("details").innerHTML='<div class="emptymsg">履歴はありません</div>';render()}};
-try{selected=localStorage.getItem(SELECTED_DATE_KEY)||selected}catch(e){}
+selected=new Date().toLocaleDateString("sv-SE");
 setSelectedDate(selected);
 render();
 showDay(selected,rows().filter(r=>localDay(r)===selected));
