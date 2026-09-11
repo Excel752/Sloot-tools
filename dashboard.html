@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>稼働ダッシュボード</title>
+<style>
+:root{--bg:#0d0d10;--card:#17171b;--line:#2e2e35;--text:#f0f0f2;--muted:#8f8f99;--gold:#d6bb79;--plus:#7ed6a0;--minus:#f08d91}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:18px 14px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:20px;margin:0}.back{font-size:12px;color:var(--muted);text-decoration:none}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tab{flex:1;border:1px solid var(--line);background:#151519;color:var(--muted);padding:9px;border-radius:9px;font-weight:800}.tab.on{background:#ece8df;color:#111}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}.lab{font-size:10px;color:var(--muted)}.val{font-size:20px;font-weight:900;margin-top:4px}.plus{color:var(--plus)}.minus{color:var(--minus)}
+.panel{margin-top:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px}
+.monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.monthbar button{border:1px solid var(--line);background:#202025;color:white;border-radius:8px;padding:7px 14px}.monthtitle{font-weight:900}.excelstat{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#111115;border:1px solid #28282e;border-radius:10px;padding:10px 12px;margin:2px 0 8px}.excelstat .lab{font-size:11px}.excelstat .val{font-size:18px;margin-top:0;text-align:right}.excelhint{font-size:8px;color:var(--muted);margin-top:2px}.salarysum{font-size:8px;color:var(--muted);text-align:right;margin-top:3px}.salarybox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 1px;border-top:1px solid #29292f}.salarylabel{font-size:11px;font-weight:800}.salarydate{display:block;color:var(--muted);font-size:9px;font-weight:400;margin-top:2px}.salaryinputwrap{display:flex;align-items:center;gap:4px}.salaryinput{width:112px;background:#111115;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 9px;text-align:right;font-size:14px;font-weight:800;outline:none}.salaryinput:focus{border-color:var(--gold)}.salaryunit{font-size:11px;color:var(--muted)}.recordrow{align-items:center}.deletebtn{flex:none;border:1px solid #563238;background:#24171a;color:#f08d91;border-radius:7px;padding:7px 8px;font-size:9px;font-weight:800;cursor:pointer}.selectednote{font-size:9px;color:var(--muted);margin:0 0 7px}.selectednote b{color:var(--gold)}.periodnote{text-align:center;font-size:9px;color:var(--muted);margin:8px 0 0}.periodnote b{color:var(--gold)}
+.week,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.week div{text-align:center;color:var(--muted);font-size:9px;padding:3px}
+.day{min-height:76px;background:#111115;border:1px solid #28282e;border-radius:8px;padding:5px;overflow:hidden}.day.empty{opacity:.15}.day.has{cursor:pointer}.day.sel{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.date{font-size:10px;font-weight:900}.mini{font-size:8px;line-height:1.45;white-space:nowrap;margin-top:2px}.today .date{color:var(--gold)}
+.detailhead{font-size:13px;font-weight:900;margin-bottom:5px}.row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #29292f;padding:9px 1px;font-size:11px}.row:first-child{border-top:0}.machine{font-weight:900}.sub{color:var(--muted);font-size:9px}.right{text-align:right}
+.emptymsg{text-align:center;color:var(--muted);font-size:11px;padding:17px 0}.actions{display:flex;gap:7px;margin-top:10px}.smallbtn{flex:1;border:1px solid var(--line);background:#202025;color:#bbb;padding:9px;border-radius:8px;font-size:10px}
+.note{text-align:center;color:#666670;font-size:9px;margin-top:13px}
+.editbtn{flex:none;border:1px solid #5a503d;background:#211f19;color:#ead9aa;border-radius:7px;padding:7px 8px;font-size:9px;font-weight:800;cursor:pointer}
+.recordactions{display:flex;gap:5px;align-items:center}
+.breakgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.breakcard{background:#111115;border:1px solid #28282e;border-radius:9px;padding:9px}
+.breakname{font-size:11px;font-weight:900;margin-bottom:5px}
+.breaknums{font-size:9px;line-height:1.6;color:var(--muted)}
+.breaknums b{color:var(--text)}
+@media(max-width:380px){.day{min-height:70px;padding:4px}.mini{font-size:7px}.val{font-size:18px}}
+.editmodal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:none;align-items:flex-end;justify-content:center}.editmodal.open{display:flex}.editbox{width:min(100%,560px);background:#18181d;border:1px solid #35353d;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}.editbox h3{margin:0 0 14px}.editgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.editfield{display:flex;flex-direction:column;gap:5px}.editfield.wide{grid-column:1/-1}.editfield label{font-size:10px;color:#9999a5;font-weight:800}.editfield input{width:100%;height:43px;border:1px solid #34343b;border-radius:9px;background:#0f0f12;color:#f7f5ef;padding:0 10px}.editactions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px;margin-top:15px}.editactions button{height:45px;border-radius:10px;font-weight:900}.editcancel{background:#25252b;color:#bbb;border:1px solid #383840}.editsave{background:#c8941a;color:#17130b;border:0}.addrow{padding:10px 0 2px;border-top:1px solid #29292f}.addbtn{width:100%;height:42px;border:1px dashed #6a5b3b;background:#211f19;color:#ead9aa;border-radius:9px;font-size:11px;font-weight:900;cursor:pointer}.copychoices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.copychoice{height:48px;border:1px solid #4a4435;background:#211f19;color:#ead9aa;border-radius:10px;font-weight:900}.rawbtn{width:100%;margin-top:9px;height:42px;border:1px solid #34343b;background:#202025;color:#aaa;border-radius:9px;font-size:10px;font-weight:800}</style></head><body><div class="wrap">
+<div class="top"><h1>📊 稼働ダッシュボード</h1><a class="back" href="./index.html">← ツール選択へ</a></div>
+<div class="tabs"><button id="dayTab" class="tab on" data-mode="day">今日</button><button class="tab" data-mode="week">週</button><button class="tab" data-mode="month">月</button><button class="tab" data-mode="all">累計</button></div>
+<div class="summary">
+<div class="stat"><div class="lab">実収支</div><div id="profit" class="val">0円</div></div>
+<div class="stat"><div class="lab">期待値</div><div id="ev" class="val">0円</div></div>
+<div class="stat"><div class="lab">総回転数</div><div id="games" class="val">0G</div></div>
+<div class="stat"><div class="lab">稼働台数</div><div id="count" class="val">0台</div></div>
+</div>
+<div id="periodNote" class="periodnote"></div>
+<div class="panel">
+<div class="monthbar"><button id="prev">‹</button><div id="monthTitle" class="monthtitle"></div><button id="next">›</button></div><div id="selectedDateBadge" style="font-size:9px;color:var(--muted);margin:-2px 0 7px;text-align:center"></div>
+<div class="excelstat"><div><div class="lab">エクセル収支</div><div class="excelhint">実収支 − 期待値 − 給料</div></div><div><div id="excelProfit" class="val">0円</div><div id="salarySum" class="salarysum">給料 0円</div></div></div>
+<div class="week"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div>
+<div id="calendar" class="cal"></div>
+</div>
+<div class="panel"><div class="detailhead">🏬 店舗別 累計</div><div id="storeAccum" class="breakgrid"></div></div>
+<div class="panel"><div class="detailhead">🎰 機種別 累計</div><div id="machineAccum" class="breakgrid"></div></div>
+<div class="panel"><div id="detailHead" class="detailhead">今日の稼働内訳</div><div id="details"><div class="emptymsg">この日の稼働記録はまだありません</div></div></div>
+<div class="actions"><button id="exportBtn" class="smallbtn">📋 データをコピー</button><button id="clearBtn" class="smallbtn">🗑 全履歴を削除</button></div>
+<div class="note">起動時は当日表示。カレンダーの日付をタップすると上の集計がその日に切り替わります。「週」は選択日を含む週の集計で、回転数だけ1日平均を表示します。</div>
+</div>
+<div id="recordEditModal" class="editmodal"><div class="editbox"><h3>✏️ 稼働データ編集</h3><div class="editgrid"><div class="editfield wide"><label>店名</label><input id="editStore"></div><div class="editfield wide"><label>機種名</label><input id="editMachine"></div><div class="editfield"><label>回転数</label><input id="editGames" inputmode="numeric"></div><div class="editfield"><label>期待値</label><input id="editEv" inputmode="numeric"></div><div class="editfield wide"><label>収支</label><input id="editProfit" inputmode="numeric"></div></div><div class="editactions"><button id="editCancel" class="editcancel">キャンセル</button><button id="editSave" class="editsave">まとめて保存</button></div></div></div>
+<div id="recordAddModal" class="editmodal"><div class="editbox"><h3>➕ 台を追加</h3><div class="editgrid">
+<div class="editfield wide"><label>店名</label><input id="addStore" placeholder="例：PIA川崎銀柳"></div>
+<div class="editfield wide"><label>機種名</label><input id="addMachine" placeholder="例：東京喰種"></div>
+<div class="editfield"><label>台番</label><input id="addNumber" inputmode="numeric" placeholder="例：2169"></div>
+<div class="editfield"><label>名前</label><input id="addName" placeholder="例：原"></div>
+<div class="editfield"><label>回転数</label><input id="addGames" inputmode="numeric" placeholder="0"></div>
+<div class="editfield"><label>期待値</label><input id="addEv" inputmode="numeric" placeholder="0"></div>
+<div class="editfield wide"><label>収支</label><input id="addProfit" inputmode="numeric" placeholder="0"></div>
+</div><div class="editactions"><button id="addCancel" class="editcancel">キャンセル</button><button id="addSave" class="editsave">追加して保存</button></div></div></div>
+<div id="copyModal" class="editmodal"><div class="editbox"><h3>📋 データをコピー</h3><div class="copychoices"><button class="copychoice" data-copy-mode="day">日</button><button class="copychoice" data-copy-mode="week">週</button><button class="copychoice" data-copy-mode="month">月</button><button class="copychoice" data-copy-mode="all">累計</button></div><button id="rawCopyBtn" class="rawbtn">💾 生データをコピー</button><div class="editactions"><button id="copyCancel" class="editcancel" style="grid-column:1/-1">キャンセル</button></div></div></div>
+<script>
+const KEY="slot_dashboard_records_v1";
+const SALARY_KEY="slot_dashboard_salary_v1";
+const SELECTED_DATE_KEY="slot_dashboard_selected_date_v1";
+let d=new Date(), y=d.getFullYear(), m=d.getMonth(), mode="day", selected=new Date().toLocaleDateString("sv-SE");
+const $=id=>document.getElementById(id), money=n=>(n>0?"+":"")+Number(n||0).toLocaleString()+"円", sign=n=>n>0?"plus":n<0?"minus":"";
+function rows(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+function salaryMap(){try{return JSON.parse(localStorage.getItem(SALARY_KEY)||"{}")}catch(e){return{}}}
+function salaryFor(day){return Number(salaryMap()[day])||0}
+function saveSalary(day,value){const map=salaryMap(),n=Math.max(0,Math.round(Number(value)||0));if(n>0)map[day]=n;else delete map[day];localStorage.setItem(SALARY_KEY,JSON.stringify(map))}
+function salaryTotalFor(rs){const days=[...new Set(rs.map(localDay))];return days.reduce((a,day)=>a+salaryFor(day),0)}
+function setSelectedDate(day){selected=day;localStorage.setItem(SELECTED_DATE_KEY,day)}
+function deleteRecord(id){
+  const next=rows().filter(r=>String(r.id)!==String(id));
+  localStorage.setItem(KEY,JSON.stringify(next));
+  const day=selected, dr=next.filter(r=>localDay(r)===day);
+  render(); showDay(day,dr);
+}
+function refreshSelectedDetail(){
+  if(!selected) return;
+  const dr=rows().filter(r=>localDay(r)===selected);
+  showDay(selected,dr);
+}
+function localDay(x){return String(x.date||new Date(x.timestamp).toLocaleDateString("sv-SE")).slice(0,10)}
+function monthRows(){return rows().filter(r=>{const s=localDay(r);return +s.slice(0,4)===y && +s.slice(5,7)===m+1})}
+function dayRows(day=selected){return rows().filter(r=>localDay(r)===day)}
+function weekKey(day){
+  const [yy,mm,dd]=day.split("-").map(Number), dt=new Date(yy,mm-1,dd), dow=dt.getDay();
+  dt.setDate(dt.getDate()-dow);
+  return dt.toLocaleDateString("sv-SE");
+}
+function weekRows(day=selected){
+  const start=weekKey(day);
+  const [yy,mm,dd]=start.split("-").map(Number), s=new Date(yy,mm-1,dd), e=new Date(yy,mm-1,dd);
+  e.setDate(e.getDate()+6);
+  return rows().filter(r=>{
+    const d=localDay(r), t=new Date(d+"T00:00:00");
+    return t>=s && t<=e;
+  });
+}
+function updateDayTab(){
+  const today=new Date().toLocaleDateString("sv-SE"), b=$("dayTab");
+  if(!b)return;
+  b.textContent=selected===today?"今日":`${+selected.slice(5,7)}/${+selected.slice(8)}`;
+}
+function filtered(){
+  const all=rows();
+  if(mode==="day")return dayRows(selected);
+  if(mode==="week")return weekRows(selected);
+  if(mode==="all")return all;
+  if(mode==="month")return monthRows();
+  return dayRows(selected);
+}
+function sum(rs,k){return rs.reduce((a,r)=>a+(Number(r[k])||0),0)}
+function summary(){
+  let rs=filtered(), p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryTotalFor(rs),x=p-e-s,g=sum(rs,"games"),c=rs.length,note="";
+  if(mode==="week"){
+    const activeDays=[...new Set(rs.map(localDay))].length;
+    g=activeDays?g/activeDays:0;
+    const start=weekKey(selected), [yy,mm,dd]=start.split("-").map(Number), end=new Date(yy,mm-1,dd);
+    end.setDate(end.getDate()+6);
+    const endKey=end.toLocaleDateString("sv-SE");
+    note=`<b>${+start.slice(5,7)}/${+start.slice(8)}〜${+endKey.slice(5,7)}/${+endKey.slice(8)}</b> の週集計（回転数のみ1日平均）`;
+  }else if(mode==="day"){
+    note=`<b>${+selected.slice(5,7)}月${+selected.slice(8)}日</b> の集計`;
+  }else if(mode==="month"){
+    note=`<b>${y}年${m+1}月</b> の集計`;
+  }else{
+    note="保存されている全期間の集計";
+  }
+  $("profit").textContent=money(Math.round(p));$("profit").className="val "+sign(p);
+  $("ev").textContent=money(Math.round(e));$("ev").className="val "+sign(e);
+  $("excelProfit").textContent=money(Math.round(x));$("excelProfit").className="val "+sign(x);
+  $("salarySum").textContent="給料 "+Math.round(s).toLocaleString()+"円";
+  $("games").textContent=Math.round(g).toLocaleString()+"G";
+  $("count").textContent=c+"台";
+  $("periodNote").innerHTML=note;
+  updateDayTab();
+}
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+function normalizeMachineName(v){
+  const x=String(v||"").trim();
+  const rules=[
+    [/吉宗[\s　]*1G連(?:獲得)?後以外|1G連(?:獲得)?後以外/i,"吉宗"],
+    [/吉宗[\s　]*1G連(?:獲得)?後|1G連(?:獲得)?後/i,"吉宗"],
+    [/吉宗/i,"吉宗"],
+    [/SAO(?:[\s　]|$)/i,"SAO"],[/東京リベンジャーズ|東リ[ベべ]/i,"東京リベンジャーズ"],[/東京喰種|喰種/i,"東京喰種"],
+    [/からサー2(?:\s*(?:赤いボール|スカ))?|からくりサーカス2/i,"からサー2"],
+    [/北斗/i,"北斗"],[/転生/i,"転生"],[/モンキー/i,"モンキー"],[/まどマギ|マギレコ/i,"まどマギ"],
+    [/鉄拳/i,"鉄拳"],[/ヴァルヴレイヴ2|VVV2/i,"ヴァルヴレイヴ2"],[/炎炎/i,"炎炎"],
+    [/ミリオンゴッド|ゴッド|GOD/i,"ゴッド"],[/カバネリ/i,"カバネリ"],[/からくり/i,"からくり"]
+  ];
+  for(const [re,label] of rules) if(re.test(x)) return label;
+  return x;
+}
+function inferMachineName(r){
+  const direct=normalizeMachineName(r.machine);
+  if(direct && direct!=="機種不明") return direct;
+  const text=Object.values(r||{}).filter(v=>typeof v==="string").join("\n");
+  const rules=[
+    [/吉宗/i,"吉宗"],[/SAO(?:[\s　]|$)/i,"SAO"],[/東京リベンジャーズ|東リ[ベべ]/i,"東京リベンジャーズ"],[/東京喰種|喰種/i,"東京喰種"],
+    [/からサー2|からくりサーカス2/i,"からサー2"],[/北斗/i,"北斗"],[/転生/i,"転生"],[/モンキー/i,"モンキー"],
+    [/まどマギ|マギレコ/i,"まどマギ"],[/鉄拳/i,"鉄拳"],[/ヴァルヴレイヴ2|VVV2/i,"ヴァルヴレイヴ2"],
+    [/炎炎/i,"炎炎"],[/ミリオンゴッド|ゴッド|GOD/i,"ゴッド"],[/カバネリ/i,"カバネリ"],[/からくり/i,"からくり"]
+  ];
+  for(const [re,label] of rules) if(re.test(text)) return label;
+  return "機種不明";
+}
+let editingRecordId=null;
+function editRecord(id){
+ const r=rows().find(x=>String(x.id)===String(id));if(!r)return;editingRecordId=id;
+ $("editStore").value=r.store||"";$("editMachine").value=inferMachineName(r);$("editGames").value=Number(r.games)||0;$("editEv").value=Number(r.ev)||0;$("editProfit").value=Number(r.profit)||0;
+ $("recordEditModal").classList.add("open");
+}
+function closeRecordEditor(){$("recordEditModal").classList.remove("open");editingRecordId=null}
+function saveRecordEditor(){
+ const all=rows(),r=all.find(x=>String(x.id)===String(editingRecordId));if(!r)return;
+ const games=Number(String($("editGames").value).replace(/,/g,"")),ev=Number(String($("editEv").value).replace(/,/g,"")),profit=Number(String($("editProfit").value).replace(/,/g,""));
+ if([games,ev,profit].some(v=>!Number.isFinite(v))){alert("回転数・期待値・収支は数値で入力してください");return}
+ r.store=$("editStore").value.trim();r.machine=normalizeMachineName($("editMachine").value)||$("editMachine").value.trim();r.games=Math.round(games);r.ev=Math.round(ev);r.profit=Math.round(profit);r.updatedAt=new Date().toISOString();
+ localStorage.setItem(KEY,JSON.stringify(all));closeRecordEditor();render();refreshSelectedDetail();
+}
+
+function openRecordAdder(){
+  $("addStore").value="";
+  $("addMachine").value="";
+  $("addNumber").value="";
+  $("addName").value="";
+  $("addGames").value="";
+  $("addEv").value="";
+  $("addProfit").value="";
+  $("recordAddModal").classList.add("open");
+}
+function closeRecordAdder(){$("recordAddModal").classList.remove("open")}
+function saveRecordAdder(){
+  const games=Number(String($("addGames").value).replace(/,/g,""));
+  const ev=Number(String($("addEv").value).replace(/,/g,""));
+  const profit=Number(String($("addProfit").value).replace(/,/g,""));
+  if([games,ev,profit].some(v=>!Number.isFinite(v))){
+    alert("回転数・期待値・収支は数値で入力してください");
+    return;
+  }
+  const machine=normalizeMachineName($("addMachine").value)||$("addMachine").value.trim();
+  if(!machine){alert("機種名を入力してください");return;}
+  const now=new Date();
+  const rec={
+    id:"manual-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),
+    timestamp:now.toISOString(),
+    date:selected,
+    store:$("addStore").value.trim(),
+    machine,
+    number:$("addNumber").value.trim(),
+    name:$("addName").value.trim(),
+    games:Math.round(games),
+    ev:Math.round(ev),
+    profit:Math.round(profit),
+    source:"manual"
+  };
+  const all=rows();
+  all.push(rec);
+  localStorage.setItem(KEY,JSON.stringify(all));
+  closeRecordAdder();
+  render();
+  refreshSelectedDetail();
+}
+
+function renderAccumulations(){
+  const all=rows();
+  const make=(key, empty)=> {
+    const groups={};
+    all.forEach(r=>{const k=String(r[key]||empty).trim()||empty;(groups[k]??=[]).push(r)});
+    const names=Object.keys(groups).sort((a,b)=>sum(groups[b],"games")-sum(groups[a],"games"));
+    return names.length?names.map(n=>{
+      const rs=groups[n],p=sum(rs,"profit"),e=sum(rs,"ev"),g=sum(rs,"games");
+      return `<div class="breakcard"><div class="breakname">${esc(n)}</div><div class="breaknums">実収支 <b class="${sign(p)}">${money(p)}</b><br>期待値 <b class="${sign(e)}">${money(e)}</b><br>${g.toLocaleString()}G / ${rs.length}台</div></div>`;
+    }).join(""):`<div class="emptymsg">まだデータがありません</div>`;
+  };
+  $("storeAccum").innerHTML=make("store","店舗不明");
+  const mg={}; all.forEach(r=>{const k=inferMachineName(r);(mg[k]??=[]).push(r)});
+  const mn=Object.keys(mg).sort((a,b)=>sum(mg[b],"games")-sum(mg[a],"games"));
+  $("machineAccum").innerHTML=mn.length?mn.map(n=>{const rs=mg[n],p=sum(rs,"profit"),e=sum(rs,"ev"),g=sum(rs,"games");return `<div class="breakcard"><div class="breakname">${esc(n)}</div><div class="breaknums">実収支 <b class="${sign(p)}">${money(p)}</b><br>期待値 <b class="${sign(e)}">${money(e)}</b><br>${g.toLocaleString()}G / ${rs.length}台</div></div>`}).join(""):`<div class="emptymsg">まだデータがありません</div>`;
+}
+
+function render(){
+ summary(); renderAccumulations(); $("monthTitle").textContent=`${y}年${m+1}月`; $("selectedDateBadge").textContent=selected?`選択中：${+selected.slice(5,7)}月${+selected.slice(8)}日`:""; const rs=monthRows(), first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), today=new Date().toLocaleDateString("sv-SE"); $("calendar").innerHTML="";
+ for(let i=0;i<first;i++){const x=document.createElement("div");x.className="day empty";$("calendar").appendChild(x)}
+ for(let n=1;n<=days;n++){const key=`${y}-${String(m+1).padStart(2,"0")}-${String(n).padStart(2,"0")}`, dr=rs.filter(r=>localDay(r)===key),p=sum(dr,"profit"),e=sum(dr,"ev"),g=sum(dr,"games");const x=document.createElement("div");x.className="day has"+(key===today?" today":"")+(key===selected?" sel":"");x.innerHTML=`<div class="date">${n}</div>`+(dr.length?`<div class="mini ${sign(p)}">収 ${money(p)}</div><div class="mini ${sign(e)}">期 ${money(e)}</div><div class="mini">${g.toLocaleString()}G / ${dr.length}台</div>`:"");x.onclick=()=>{
+  setSelectedDate(key);
+  mode="day";
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.mode==="day"));
+  render();
+  showDay(key,rows().filter(r=>localDay(r)===key));
+};$("calendar").appendChild(x)}
+}
+function showDay(key,rs){
+  rs=Array.isArray(rs)?rs:[];
+  const p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryFor(key),x=p-e-s,g=sum(rs,"games");
+  $("detailHead").textContent=`${+key.slice(5,7)}月${+key.slice(8)}日　${rs.length}台 / ${g.toLocaleString()}G`;
+  const recordsHtml=rs.length
+    ? rs.slice().sort((a,b)=>String(a.timestamp).localeCompare(String(b.timestamp))).map(r=>`<div class="row recordrow"><span><span class="machine">${r.machine||"機種不明"}</span><br><span class="sub">${r.store||""}${r.number?" #"+r.number:""}${r.name?" / "+r.name:""}</span></span><span class="right"><b class="${sign(r.profit)}">${money(r.profit)}</b><br><span class="sub">期待 ${money(r.ev)} / ${(Number(r.games)||0).toLocaleString()}G</span></span><span class="recordactions"><button class="editbtn" data-edit-id="${String(r.id||"")}">編集</button><button class="deletebtn" data-delete-id="${String(r.id||"")}">削除</button></span></div>`).join("")
+    : `<div class="emptymsg">この日の稼働記録はまだありません</div>`;
+  $("details").innerHTML=
+    `<div class="selectednote">完成メールだけ送る場合は <b>${+key.slice(5,7)}月${+key.slice(8)}日</b> に記録します</div>`+
+    `<div class="row"><span>日計 実収支</span><b class="${sign(p)}">${money(p)}</b></div>`+
+    `<div class="row"><span>日計 期待値</span><b class="${sign(e)}">${money(e)}</b></div>`+
+    `<div class="salarybox"><div><span class="salarylabel">給料</span><span class="salarydate">${+key.slice(5,7)}月${+key.slice(8)}日分</span></div><div class="salaryinputwrap"><input id="salaryInput" class="salaryinput" type="number" inputmode="numeric" min="0" step="100" placeholder="11300〜13900" value="${s||""}"><span class="salaryunit">円</span></div></div>`+
+    `<div class="row"><span>日計 エクセル収支</span><b id="dayExcelProfit" class="${sign(x)}">${money(x)}</b></div>`+
+    `<div class="addrow"><button id="addRecordBtn" class="addbtn">➕ 台を追加</button></div>`+
+    recordsHtml;
+  const input=$("salaryInput");
+  if(input) input.oninput=()=>{saveSalary(key,input.value);const nx=p-e-salaryFor(key),el=$("dayExcelProfit");el.textContent=money(nx);el.className=sign(nx);summary()};
+  const addBtn=$("addRecordBtn"); if(addBtn) addBtn.onclick=openRecordAdder;
+  document.querySelectorAll("[data-edit-id]").forEach(btn=>btn.onclick=()=>editRecord(btn.dataset.editId));
+  document.querySelectorAll("[data-delete-id]").forEach(btn=>btn.onclick=()=>{const id=btn.dataset.deleteId;if(confirm("この稼働記録を削除しますか？"))deleteRecord(id)});
+}
+$("prev").onclick=()=>{
+  m--;if(m<0){m=11;y--}
+  const ym=`${y}-${String(m+1).padStart(2,"0")}`;
+  if(mode==="day"&&!selected.startsWith(ym))setSelectedDate(`${ym}-01`);
+  render();refreshSelectedDetail();
+};
+$("next").onclick=()=>{
+  m++;if(m>11){m=0;y++}
+  const ym=`${y}-${String(m+1).padStart(2,"0")}`;
+  if(mode==="day"&&!selected.startsWith(ym))setSelectedDate(`${ym}-01`);
+  render();refreshSelectedDetail();
+};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  mode=b.dataset.mode;
+  summary();
+});
+function copyRangeRows(cm){if(cm==="day")return dayRows(selected);if(cm==="week")return weekRows(selected);if(cm==="month")return rows().filter(r=>{const s=localDay(r);return +s.slice(0,4)===y&&+s.slice(5,7)===m+1});return rows()}
+function copyLabel(cm,rs){if(cm==="day")return `${+selected.slice(5,7)}月${+selected.slice(8)}日`;if(cm==="week"){const st=weekKey(selected),a=st.split("-").map(Number),d=new Date(a[0],a[1]-1,a[2]);d.setDate(d.getDate()+6);const e=d.toLocaleDateString("sv-SE");return `${+st.slice(5,7)}/${+st.slice(8)}〜${+e.slice(5,7)}/${+e.slice(8)}`}if(cm==="month")return `${y}年${m+1}月`;return "累計"}
+function groups(rs,fn){const g={};rs.forEach(r=>{const k=fn(r)||"不明";(g[k]??=[]).push(r)});return Object.entries(g).sort((a,b)=>sum(b[1],"games")-sum(a[1],"games"))}
+function readableCopy(cm){const rs=copyRangeRows(cm),p=sum(rs,"profit"),e=sum(rs,"ev"),s=salaryTotalFor(rs),x=p-e-s,g=sum(rs,"games");const L=[`【${copyLabel(cm,rs)} 稼働データ】`,"",`実収支 ${money(p)}`,`期待値 ${money(e)}`,`給料 ${Math.round(s).toLocaleString()}円`,`エクセル収支 ${money(x)}`,`総回転数 ${g.toLocaleString()}G`,`稼働台数 ${rs.length}台`];if(!rs.length)return L.join("\n");if(cm==="day"){L.push("","【稼働内訳】");rs.forEach(r=>L.push(`■ ${inferMachineName(r)}`,`${r.store||"店舗不明"}${r.number?" #"+r.number:""}`,`実収支 ${money(r.profit)} / 期待値 ${money(r.ev)} / ${(Number(r.games)||0).toLocaleString()}G`))}else{L.push("","【店舗・機種別】");groups(rs,r=>r.store||"店舗不明").forEach(([st,sr])=>{L.push("",`■ ${st}`);groups(sr,r=>inferMachineName(r)).forEach(([ma,mr])=>L.push(`${ma}　${mr.length}台 / ${sum(mr,"games").toLocaleString()}G`))});L.push("","【機種別収支】");groups(rs,r=>inferMachineName(r)).forEach(([ma,mr])=>L.push("",ma,`実収支 ${money(sum(mr,"profit"))}`,`期待値 ${money(sum(mr,"ev"))}`,`${sum(mr,"games").toLocaleString()}G / ${mr.length}台`))}return L.join("\n")}
+async function cp(s,msg){try{await navigator.clipboard.writeText(s);alert(msg)}catch(e){prompt("コピーしてください",s)}}
+function closeCopy(){$("copyModal").classList.remove("open")}
+$("exportBtn").onclick=()=>$("copyModal").classList.add("open");
+document.querySelectorAll("[data-copy-mode]").forEach(b=>b.onclick=async()=>{await cp(readableCopy(b.dataset.copyMode),"稼働データをコピーしました");closeCopy()});
+$("rawCopyBtn").onclick=()=>cp(JSON.stringify({records:rows(),salary:salaryMap()},null,2),"生データをコピーしました");
+$("copyCancel").onclick=closeCopy;$("copyModal").onclick=e=>{if(e.target===$("copyModal"))closeCopy()};
+$("clearBtn").onclick=()=>{if(confirm("保存されている稼働履歴をすべて削除しますか？")){localStorage.removeItem(KEY);localStorage.removeItem(SALARY_KEY);selected="";$("details").innerHTML='<div class="emptymsg">履歴はありません</div>';render()}};
+selected=new Date().toLocaleDateString("sv-SE");
+setSelectedDate(selected);
+const editCancelBtn=$("editCancel"), editSaveBtn=$("editSave"), editModal=$("recordEditModal");
+if(editCancelBtn) editCancelBtn.onclick=closeRecordEditor;
+if(editSaveBtn) editSaveBtn.onclick=saveRecordEditor;
+if(editModal) editModal.onclick=e=>{if(e.target===editModal)closeRecordEditor()};
+const addCancelBtn=$("addCancel"), addSaveBtn=$("addSave"), addModal=$("recordAddModal");
+if(addCancelBtn) addCancelBtn.onclick=closeRecordAdder;
+if(addSaveBtn) addSaveBtn.onclick=saveRecordAdder;
+if(addModal) addModal.onclick=e=>{if(e.target===addModal)closeRecordAdder()};
+render();
+showDay(selected,rows().filter(r=>localDay(r)===selected));
+</script></body></html>
